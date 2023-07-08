@@ -20,7 +20,7 @@ const register = async (req, res) => {
     });
   } else {
     const salt = bcrypt.genSaltSync(SALTROUND_NEW);
-    // console.log(typeof salt);
+    console.log(salt);
     const hashpassword = bcrypt.hashSync(data.password, salt);
     // console.log(hashpassword);
 
@@ -38,6 +38,7 @@ const register = async (req, res) => {
       number: data.number,
       email: data.email,
       password: hashpassword,
+      token: token,
     };
     storeData.push(tempobj);
     console.log(storeData);
@@ -46,9 +47,10 @@ const register = async (req, res) => {
 };
 const login = (req, res) => {
   const data = req.body;
-  //   const { email, password } = req.body;
+  const { email, password } = data;
   const user = storeData.find((items) => {
     if (items.email === data.email) {
+      const salt = bcrypt.genSaltSync(10);
       const validate = bcrypt.compareSync(data.password, items.password);
       const token = jwt.sign(
         { email: data.email },
@@ -61,7 +63,7 @@ const login = (req, res) => {
       // console.log(validate);
       if (validate) {
         // console.log(token);
-        res.send({
+        return res.send({
           msg: "user login sucessfully!!!!",
         });
       } else {
